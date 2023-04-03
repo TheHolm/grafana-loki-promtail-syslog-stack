@@ -1,0 +1,65 @@
+version: "3"
+
+networks:
+  loki:
+
+services:
+  loki:
+    container_name: loki
+    image: grafana/loki:2.7.4
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki
+    volumes:
+      - loki-logs:/var/log
+      - loki-storage:/storage
+
+  promtail:
+    # image: grafana/promtail:2.7.4
+    container_name: promtail
+    build:
+       context: .
+       dockerfile: ./promtail.Dockerfile
+    volumes:
+      - promtail-logs:/var/log
+    command: -config.file=/etc/promtail/config.yml
+    # ports:
+    #    - "514:1514"
+    networks:
+      - loki
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - loki
+
+  syslog-ng:
+      # image: lscr.io/linuxserver/syslog-ng:latest
+      container_name: syslog-ng
+      build:
+         context: .
+         dockerfile: ./syslog-ng.Dockerfile
+      environment:
+        - PUID=1000
+        - PGID=1000
+        - TZ=Australia/Sydney
+      # volumes:
+        # - /path/to/config:/config
+        # - /path/to/log:/var/log #optional
+      ports:
+        - 514:5514/udp
+        - 514:6601/tcp
+        # - 6514:6514/tcp
+      networks:
+        - loki
+      restart: unless-stopped
+
+volumes:
+  loki-storage:
+  loki-logs:
+  promtail-logs:
