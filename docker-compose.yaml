@@ -15,6 +15,7 @@ services:
     volumes:
       - loki-logs:/var/log
       - loki-storage:/storage
+    restart: unless-stopped
 
   promtail:
     # image: grafana/promtail:2.7.4
@@ -25,10 +26,9 @@ services:
     volumes:
       - promtail-logs:/var/log
     command: -config.file=/etc/promtail/config.yml
-    # ports:
-    #    - "514:1514"
     networks:
       - loki
+    restart: unless-stopped
 
   grafana:
     container_name: grafana
@@ -37,9 +37,9 @@ services:
       - "3000:3000"
     networks:
       - loki
+    restart: unless-stopped
 
   syslog-ng:
-      # image: lscr.io/linuxserver/syslog-ng:latest
       container_name: syslog-ng
       build:
          context: .
@@ -48,13 +48,9 @@ services:
         - PUID=1000
         - PGID=1000
         - TZ=Australia/Sydney
-      # volumes:
-        # - /path/to/config:/config
-        # - /path/to/log:/var/log #optional
       ports:
         - 514:5514/udp
         - 514:6601/tcp
-        # - 6514:6514/tcp
       networks:
         - loki
       restart: unless-stopped
