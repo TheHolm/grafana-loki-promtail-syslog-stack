@@ -37,6 +37,8 @@ services:
     build:
        context: .
        dockerfile: ./grafana.Dockerfile
+    volumes:
+       - grafana-storage:/var/lib/grafana
     ports:
       - "3000:3000"
     networks:
@@ -61,5 +63,6 @@ services:
 
 volumes:
   loki-storage:
+  grafana-storage:
   loki-logs:
   promtail-logs:
