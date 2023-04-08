@@ -6,7 +6,9 @@ networks:
 services:
   loki:
     container_name: loki
-    image: grafana/loki:2.7.4
+    build:
+       context: .
+       dockerfile: ./loki.Dockerfile
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
@@ -32,7 +34,9 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana:latest
+    build:
+       context: .
+       dockerfile: ./grafana.Dockerfile
     ports:
       - "3000:3000"
     networks:
